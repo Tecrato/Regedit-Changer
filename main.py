@@ -15,64 +15,96 @@ class RegeditChanger(Base_class):
         self.sonidos = Set_sounds()
 
         self.lista_opciones_registro: list[str] = [
-            {"option_text":"Icono barra lateral", "tooltip":"Crear icono en la barra lateral"},
-            {"option_text":"Opcion menu contextual", "tooltip":"Crear opcion en el menu contextual"},
-            {"option_text":"Opcion para carpeta en el Menu contextual", "tooltip":"Crear acceso directo en\nel menu contextualal Hacer click derecho\nen una carpeta"},
+            {"option_text":"Barra lateral", "tooltip":"Crear Acceso directo a la carpeta deseada en la barra lateral del explorador de windos"},
+            {"option_text":"Menu contextual", "tooltip":"Crear opciones nuevas en el menu contextual al hacer click derecho en el explorador de archivos de windows"},
+            {"option_text":"Aplicacion de inicio", "tooltip":"Ejecuta el programa o archivo seleccionado al iniciar windows"},
         ]
+        self.moving_tooltip = False
+
+
     @override
     def generate_objs(self) -> None:
         self.text_main_title = uti_pygame.Text("Regedit Changer", 24, self.config.fonts["mononoki"], (self.config.resolution[0]//2, 20))
-        self.text_main_otro1 = uti_pygame.Text("Otro", 24, self.config.fonts["mononoki"], (self.config.resolution[0]//2, 40))
+
+
+        self.text_tooltip = uti_pygame.Text(
+            "Tooltip", 12, self.config.fonts["mononoki"], (self.config.resolution[0]//4,-500), border_radius=30, max_width=150,
+            border_width=2, border_color = 'black', padding=20, color_rect=(10,10,10)
+            )
+        self.text_tooltip.smothmove(1,1,1)
 
         self.bloque_main_opciones = uti_pygame.Bloque(
             (0,50),
             (self.config.resolution[0]//4, self.config.resolution[1]-50),
             dire='topleft',
-            border_width=2,
+            # border_width=2,
             border_color=(255,255,255,255),
         )
 
+        self.bloque_main_opciones.add(
+            uti_pygame.Text(
+                "Opciones", 16, self.config.fonts["mononoki"], (self.config.resolution[0]//8,50),
+                min_width=self.bloque_main_opciones.width-1,
+            ),
+            f'(self.rect.w/2,15)',
+        )
         for i,x in enumerate(self.lista_opciones_registro):
+            if i <= 0:
+                top = 20*2
+            else:
+                top = self.bloque_main_opciones.list_objs[-1]["GUI"].rect.bottom
             self.bloque_main_opciones.add(
                 uti_pygame.Button(
                     text=x["option_text"],
-                    size=11, 
+                    size=12, 
                     font=self.config.fonts["mononoki"], 
-                    pos=(2,25*i + 20), 
+                    pos=(0,top), 
                     padding=5, 
-                    dire='left', 
-                    color='white', 
-                    border_width=-1, 
+                    dire='topleft', 
+                    color='black', 
+                    border_width=-1,
+                    border_radius=-1, 
+                    min_width=self.bloque_main_opciones.width,
+                    max_width=self.bloque_main_opciones.width,
+                    min_height=30,
                     with_rect=True, 
-                    toggle_rect=True,
-                    color_rect_active='darkgreen',
-                    func_to_hover=lambda i=i,txt=x["tooltip"]:self.spawn_tooltip(txt, (self.config.resolution[0]//4,25*i + 20 + self.bloque_main_opciones.top)),
+                    wrap=True,
+                    color_rect_active='lightgreen',
+                    func_to_hover=lambda top=top,txt=x["tooltip"]:self.spawn_tooltip(txt, (self.config.resolution[0]//4 +1,top+50), 'left'),
                     func_out_hover=lambda txt=x["tooltip"]: self.despawn_tooltip(txt),
                 )
-            , f'(2,25*{i} + 20)', clicking=True)
-
+            , f'(0,{top})', clicking=True)
 
         self.lists_screens['main']["draw"] = [
-            self.text_main_title, self.text_main_otro1, self.bloque_main_opciones
+            self.text_main_title, self.bloque_main_opciones,
         ]
         self.lists_screens['main']["update"] = self.lists_screens['main']["draw"]
         self.lists_screens['main']["click"] = [
             self.bloque_main_opciones
         ]
 
+        self.overlay = [
+            self.text_tooltip
+        ]
+
     @override
     def otro_evento(self, actual_screen, evento):
         if evento.type == pag.KEYDOWN and evento.key == pag.K_ESCAPE:
             self.exit()
+        elif evento.type == pag.MOUSEMOTION:
+            if self.moving_tooltip:
+                self.moving_tooltip = False
 
-    def spawn_tooltip(self, tooltip: str, pos: tuple[int,int], size: tuple[int,int]=(200,80), **kwargs) -> None:
-        self.Mini_GUI_manager.add(
-            uti_pygame.mini_GUI.more_objs.aviso1(pos=pos, dire='left', text=tooltip, size=size),
-            group='tooltip_'+tooltip
-        )
+    def spawn_tooltip(self, tooltip: str, pos: tuple[int,int], dire: str = 'left') -> None:
+        self.text_tooltip.text = tooltip
+        self.text_tooltip.pos = pos
+        self.text_tooltip.dire = dire
+        self.moving_tooltip = True
+
     def despawn_tooltip(self, tooltip: str, **kwargs) -> None:
-        self.Mini_GUI_manager.clear_group('tooltip_'+tooltip)
-        self.redraw = True
+        if self.moving_tooltip:
+            return
+        self.text_tooltip.pos = (self.config.resolution[0]//4,-100)
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
