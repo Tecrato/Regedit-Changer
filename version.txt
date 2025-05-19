@@ -1,0 +1,19 @@
+# --------------------------------------- ######################################## ----------------------------
+0.1 - 19/05/2025
+
+Cosas nuevas:
+- funcion de crear acceso directo en la barra lateral terminada.
+- Annadida función para spawnear Ventanas de dialogo
+- Añadida variable de acceso directo imborrable.
+- Creadas las imagenes de ejemplo.
+- Creado icono de la aplicacion.
+- funciona para cargar y guardar configuraciones.
+
+Cambios:
+- Cambio de nombre de carpeta de funciones variadas.
+- El cursor cambia segun el boton o texto
+
+Bugs corregidos:
+-
+
+En fin recien lo estoy desarrollando, calma.

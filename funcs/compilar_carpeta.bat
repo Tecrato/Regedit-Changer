@@ -4,12 +4,12 @@ set archivo=%1
 set archivospec=%archivo%\main.spec
 set archivopy=%archivo%\main.py
 echo Compilando %archivospec%
-"C:\\Users\\Edouard\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\pyinstaller.exe" --noconfirm %archivospec%
+pyinstaller.exe --noconfirm %archivospec%
 if %ERRORLEVEL% neq 0 (goto ProcessError)
 goto salida_bien
 :ProcessError
 echo \nERROR con el %archivospec%, compilando %archivopy% en su lugar\n\n
-"C:\\Users\\Edouard\\AppData\\Local\\Programs\\Python\\Python313\\Scripts\\pyinstaller.exe" --noconfirm %archivopy%
+pyinstaller.exe --noconfirm %archivopy%
 
 if %ERRORLEVEL% neq 0 (goto salida_mal)
 
